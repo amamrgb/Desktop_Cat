@@ -153,7 +153,7 @@ fn fetch_latest_release_json() -> Result<String, String> {
          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
          $ProgressPreference = 'SilentlyContinue'; \
          $resp = Invoke-WebRequest -UseBasicParsing -Uri '{url}' \
-           -Headers @{{'User-Agent'='KuroCat/{ver}'; 'Accept'='application/vnd.github+json'}} -TimeoutSec 15; \
+           -Headers @{{'User-Agent'='Desktop_Cat/{ver}'; 'Accept'='application/vnd.github+json'}} -TimeoutSec 15; \
          Write-Output $resp.Content",
         url = REPO_API_LATEST,
         ver = CURRENT_VERSION
@@ -200,7 +200,7 @@ fn fetch_latest_release_json() -> Result<String, String> {
             "--max-time",
             "20",
             "-H",
-            &format!("User-Agent: KuroCat/{}", CURRENT_VERSION),
+            &format!("User-Agent: Desktop_Cat/{}", CURRENT_VERSION),
             "-H",
             "Accept: application/vnd.github+json",
             REPO_API_LATEST,
@@ -296,7 +296,7 @@ fn download_and_verify_windows(url: &str, dest: &PathBuf, expected_sha256: Optio
          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
          $ProgressPreference = 'SilentlyContinue'; \
          $dst = '{dst}'; \
-         Invoke-WebRequest -UseBasicParsing -Uri '{url}' -Headers @{{'User-Agent'='KuroCat/{ver}'}} -OutFile $dst -TimeoutSec 180; \
+         Invoke-WebRequest -UseBasicParsing -Uri '{url}' -Headers @{{'User-Agent'='Desktop_Cat/{ver}'}} -OutFile $dst -TimeoutSec 180; \
          if (-not (Test-Path $dst) -or (Get-Item $dst).Length -lt 500000) {{ throw '下载文件不完整' }}; \
          $exp = '{sha}'; \
          if ($exp -ne '') {{ \
@@ -347,7 +347,7 @@ fn install_windows_update(app: &AppHandle, info: &UpdateInfo) -> Result<(), Stri
     let asset_name = info
         .asset_name
         .as_deref()
-        .unwrap_or("KuroCat-update.exe");
+        .unwrap_or("Desktop_Cat-update.exe");
 
     emit_progress(
         app,
@@ -356,7 +356,7 @@ fn install_windows_update(app: &AppHandle, info: &UpdateInfo) -> Result<(), Stri
         Some(info.clone()),
     );
 
-    let temp_dir = std::env::temp_dir().join("kurocat-updates");
+    let temp_dir = std::env::temp_dir().join("desktop-cat-updates");
     let _ = std::fs::create_dir_all(&temp_dir);
     let safe_name = asset_name.replace(['\\', '/', ':', '*', '?', '"', '<', '>', '|'], "_");
     let target_file = temp_dir.join(safe_name);
@@ -443,7 +443,7 @@ fn install_macos_update(app: &AppHandle, info: &UpdateInfo) -> Result<(), String
     let asset_name = info
         .asset_name
         .as_deref()
-        .unwrap_or("KuroCat-macos-universal.app.tar.gz");
+        .unwrap_or("Desktop_Cat-macos-universal.app.tar.gz");
 
     if !asset_name.to_ascii_lowercase().ends_with(".tar.gz") {
         open_url_in_browser(url);
@@ -451,7 +451,7 @@ fn install_macos_update(app: &AppHandle, info: &UpdateInfo) -> Result<(), String
     }
 
     let app_bundle = find_current_macos_app_bundle()
-        .unwrap_or_else(|| PathBuf::from("/Applications/KuroCat.app"));
+        .unwrap_or_else(|| PathBuf::from("/Applications/Desktop_Cat.app"));
 
     emit_progress(
         app,
@@ -460,10 +460,10 @@ fn install_macos_update(app: &AppHandle, info: &UpdateInfo) -> Result<(), String
         Some(info.clone()),
     );
 
-    let temp_dir = std::env::temp_dir().join(format!("kurocat-update-{}", info.latest_version));
+    let temp_dir = std::env::temp_dir().join(format!("desktop-cat-update-{}", info.latest_version));
     let _ = std::fs::remove_dir_all(&temp_dir);
     std::fs::create_dir_all(&temp_dir).map_err(|e| e.to_string())?;
-    let archive_path = temp_dir.join("KuroCat-update.app.tar.gz");
+    let archive_path = temp_dir.join("Desktop_Cat-update.app.tar.gz");
 
     let dl = Command::new("/usr/bin/curl")
         .args([
@@ -473,9 +473,9 @@ fn install_macos_update(app: &AppHandle, info: &UpdateInfo) -> Result<(), String
             "--max-time",
             "240",
             "-H",
-            &format!("User-Agent: KuroCat/{}", CURRENT_VERSION),
+            &format!("User-Agent: Desktop_Cat/{}", CURRENT_VERSION),
             "-o",
-            archive_path.to_str().unwrap_or("/tmp/KuroCat-update.app.tar.gz"),
+            archive_path.to_str().unwrap_or("/tmp/Desktop_Cat-update.app.tar.gz"),
             url,
         ])
         .output()
@@ -519,7 +519,7 @@ fn install_macos_update(app: &AppHandle, info: &UpdateInfo) -> Result<(), String
         return Err("解压更新包失败".to_string());
     }
 
-    // Find extracted .app (KuroCat.app or KuroCatPet.app)
+    // Find extracted .app (Desktop_Cat.app or Desktop_CatPet.app)
     let new_app = std::fs::read_dir(&extract_dir)
         .ok()
         .and_then(|mut it| {

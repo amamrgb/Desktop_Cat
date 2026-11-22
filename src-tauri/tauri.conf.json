@@ -35,7 +35,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "publisher": "KuroCat",
+    "publisher": "amamrgb",
     "shortDescription": "Minimalist desktop cat typing & mouse companion",
     "icon": [
       "icons/32x32.png",

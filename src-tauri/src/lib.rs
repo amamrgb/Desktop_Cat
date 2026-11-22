@@ -54,7 +54,7 @@ fn get_mcp_config(state: State<'_, AppState>) -> String {
     let port = state.settings.lock().unwrap().mcp_port;
     let exe = std::env::current_exe()
         .map(|p| p.to_string_lossy().to_string())
-        .unwrap_or_else(|_| "KuroCat.exe".to_string());
+        .unwrap_or_else(|_| "Desktop_Cat.exe".to_string());
     serde_json::to_string_pretty(&serde_json::json!({
         "mcpServers": {
             "kurocat": {
@@ -537,5 +537,5 @@ pub fn run() {
             quit_app,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running KuroCat");
+        .expect("error while running Desktop_Cat");
 }
