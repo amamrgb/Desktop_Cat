@@ -6,3 +6,5 @@ src-tauri/target/
 *.log
 .DS_Store
 Thumbs.db
+icon-cell.png
+icon-master.png

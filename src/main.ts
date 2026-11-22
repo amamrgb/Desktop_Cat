@@ -2,7 +2,7 @@ import './style.css';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { KuroCatEngine } from './catEngine';
+import { DesktopCatEngine } from './catEngine';
 import { catAudio } from './audio';
 import { DEFAULT_BUILTIN_CATS, type CatSkinConfig } from './catSkins';
 
@@ -84,7 +84,7 @@ const updateToastTextEl = document.getElementById('update-toast-text') as HTMLSp
 const btnToastInstallEl = document.getElementById('btn-toast-install') as HTMLButtonElement;
 const btnToastOpenEl = document.getElementById('btn-toast-open') as HTMLButtonElement;
 const btnToastCloseEl = document.getElementById('btn-toast-close') as HTMLButtonElement;
-const engine = new KuroCatEngine(canvas);
+const engine = new DesktopCatEngine(canvas);
 
 function renderBreedPills(): void {
   if (!breedPillsEl) return;
@@ -125,7 +125,7 @@ function syncMenuUI(): void {
   const headerEl = document.getElementById('menu-header');
   if (headerEl && activeCat) {
     const emoji = activeCat.emoji || '🐱';
-    headerEl.textContent = `${emoji} KuroCat ${activeCat.name}`;
+    headerEl.textContent = `${emoji} Desktop_Cat ${activeCat.name}`;
     headerEl.style.color = activeCat.accentColor || '#c8f538';
   }
 
@@ -197,7 +197,7 @@ async function createDesktopShortcut(): Promise<void> {
       hint.textContent = '✓ 已创建';
       hint.classList.add('copied');
       setTimeout(() => {
-        hint.textContent = 'KuroCat';
+        hint.textContent = 'Desktop_Cat';
         hint.classList.remove('copied');
       }, 1800);
     }
@@ -380,7 +380,7 @@ async function bootstrap(): Promise<void> {
 
   btnToastOpenEl.addEventListener('click', (e) => {
     e.stopPropagation();
-    const url = latestUpdateInfo?.releaseUrl || 'https://github.com/qianyiai/kurocat/releases/latest';
+    const url = latestUpdateInfo?.releaseUrl || 'https://github.com/amamrgb/Desktop_Cat/releases/latest';
     void invoke('open_release_page', { url });
   });
 

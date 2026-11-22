@@ -79,7 +79,7 @@ const BODY_SLICES: Array<{ t: number; hw: number }> = [
   { t: 1.00, hw: 46 }, // cozy bottom rest
 ];
 
-export class KuroCatEngine {
+export class DesktopCatEngine {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private rafId = 0;
@@ -161,6 +161,11 @@ export class KuroCatEngine {
   private strikeRockVel = 0;
   private bodyBob = 0;
   private kbBounce = 0;
+
+  // Spacebar tail-tap: a 0..1 spring that swings the tail tip down onto the spacebar
+  private tailStrike = 0;
+  private tailStrikeVel = 0;
+  private lastTailStrikeAt = -10000;
 
   // Blinking, petting, ear micro-twitch, typing rhythm
   private nextBlinkAt = 2.8;
@@ -347,6 +352,13 @@ export class KuroCatEngine {
       // After 180° flip, larger logical u = viewer-left side of spacebar; smaller logical u = viewer-right side!
       const spaceU = chosen.side === 'left' ? spec.uStart + spec.uWidth * 0.68 : spec.uStart + spec.uWidth * 0.32;
       targetPoint = this.projectKeyboardPoint(spaceU, spec.row + 0.50);
+
+      // Tail taps the spacebar together with the paw!
+      if (now - this.lastTailStrikeAt > 70) {
+        this.tailStrikeVel += 7.2;
+        this.tailStrike = Math.max(this.tailStrike, 0.5);
+        this.lastTailStrikeAt = now;
+      }
     } else if (activelyMousing) {
       chosen = this.rightPaw;
     } else if (screenKeyCol < 7.5) {
@@ -643,6 +655,11 @@ export class KuroCatEngine {
     this.strikeRockVel += rockAcc * dt;
     this.strikeRock = Math.max(-1, Math.min(1, this.strikeRock + this.strikeRockVel * dt));
 
+    // Spacebar tail-tap spring: soft enough that the swing stays visible (~0.5s) before snapping back
+    const tailAcc = -this.tailStrike * 150 - this.tailStrikeVel * 10;
+    this.tailStrikeVel += tailAcc * dt;
+    this.tailStrike = Math.max(0, Math.min(1.25, this.tailStrike + this.tailStrikeVel * dt));
+
     this.bodyBob = Math.max(0, this.bodyBob - dt * 11.5);
     this.kbBounce = Math.max(0, this.kbBounce - dt * 15);
 
@@ -841,15 +858,16 @@ export class KuroCatEngine {
     const breath = Math.sin(this.elapsed * 2.1) * 1.0;
     const purrShift = this.squintAmount > 0.4 ? Math.sin(this.elapsed * 22) * 0.45 * this.squintAmount : 0;
 
-    // Layer 1: Thick plush calm low-right S-hook black tail (measured 17px thick, barely drifts!)
-    this.drawTail(ctx);
-
-    // Layer 2: Mini mouse & 65% mechanical keyboard
+    // Layer 1: Mini mouse & 65% mechanical keyboard
     this.drawMiniMouse(ctx);
     this.drawKeyboard(ctx);
 
-    // Layer 3: Exact measured spine-deformable cat silhouette (ears, cheeks, neck, pear belly, grounded hind feet, eyes & tiny whiskers)
+    // Layer 2: Exact measured spine-deformable cat silhouette (ears, cheeks, neck, pear belly, grounded hind feet, eyes & tiny whiskers)
     this.drawCatBody(ctx, breath, purrShift);
+
+    // Layer 2.5: Thick plush calm low-right S-hook tail — drawn ON TOP of body & keyboard so the
+    // spacebar tail-tap stays clearly visible instead of hiding behind the black belly
+    this.drawTail(ctx);
 
     // Layer 4: True-scale velvety cat paws (tapered idle legs / planted diagonal mouse support leg / bent curled chest paw / plump round poking paw!)
     this.drawPaw(ctx, this.leftPaw, breath);
@@ -871,12 +889,30 @@ export class KuroCatEngine {
 
     const startX = hipRight.x + 56;
     const startY = hipRight.y - 2;
-    const cp1X = startX + 34;
-    const cp1Y = startY + 4 + gentleDrift * 0.25;
-    const cp2X = startX + 38;
-    const cp2Y = startY - 34 + gentleDrift * 0.45;
-    const endX = startX + 70 + gentleDrift * 0.35;
-    const endY = startY - 35 + gentleDrift;
+
+    // Where the tail naturally rests
+    let cp1X = startX + 34;
+    let cp1Y = startY + 4 + gentleDrift * 0.25;
+    let cp2X = startX + 38;
+    let cp2Y = startY - 34 + gentleDrift * 0.45;
+    let endX = startX + 70 + gentleDrift * 0.35;
+    let endY = startY - 35 + gentleDrift;
+
+    // Spacebar tail-tap: swing the whole tail down so the tip lands on the spacebar, then spring back
+    const strike = Math.max(0, Math.min(1.15, this.tailStrike));
+    if (strike > 0.001) {
+      const spaceSpec = KEYBOARD_KEYS.find((k) => k.id === 'space');
+      if (spaceSpec) {
+        // Viewer-right end of the spacebar (the tail lives on the right side of the cat)
+        const tapPoint = this.projectKeyboardPoint(spaceSpec.uStart + spaceSpec.uWidth * 0.22, spaceSpec.row + 0.42);
+        const k = Math.min(1, strike);
+        endX = endX + (tapPoint.x - endX) * k;
+        endY = endY + (tapPoint.y - endY) * k;
+        cp2X = cp2X + (tapPoint.x - 10 - cp2X) * k * 0.8;
+        cp2Y = cp2Y + (startY + (tapPoint.y - startY) * 0.55 - cp2Y) * k * 0.8;
+        cp1Y = cp1Y + (startY + 12 - cp1Y) * k * 0.6;
+      }
+    }
 
     ctx.save();
     ctx.lineCap = 'round';

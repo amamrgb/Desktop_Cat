@@ -600,6 +600,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "desktop-cat"
+version = "4.4.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "windows-sys 0.59.0",
+]
+
+[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1786,17 +1797,6 @@ checksum = "0fbe853b403ae61a04233030ae8a79d94975281ed9770a1f9e246732b534b28d"
 dependencies = [
  "bitflags 2.13.2",
  "serde",
-]
-
-[[package]]
-name = "kuro-cat-pet"
-version = "4.4.0"
-dependencies = [
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "windows-sys 0.59.0",
 ]
 
 [[package]]

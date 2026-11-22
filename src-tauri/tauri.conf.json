@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "KuroCat",
+  "productName": "Desktop_Cat",
   "version": "4.4.0",
-  "identifier": "com.kurocat.pet",
+  "identifier": "com.desktopcat.pet",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -15,7 +15,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "KuroCat",
+        "title": "Desktop_Cat",
         "width": 420,
         "height": 440,
         "resizable": false,

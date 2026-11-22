@@ -1,16 +1,16 @@
 [package]
-name = "kuro-cat-pet"
+name = "desktop-cat"
 version = "4.4.0"
 description = "Cross-platform desktop cat typing & mouse companion for Windows and macOS"
 authors = ["Kevin Hao"]
 edition = "2021"
 
 [lib]
-name = "kuro_cat_pet_lib"
+name = "desktop_cat_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [[bin]]
-name = "KuroCat"
+name = "Desktop_Cat"
 path = "src/main.rs"
 
 [build-dependencies]
